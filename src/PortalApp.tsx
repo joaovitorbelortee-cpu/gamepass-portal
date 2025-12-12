@@ -75,8 +75,8 @@ export default function PortalApp() {
             <StarfieldBackground />
             <div className="portal-header">
                 <div className="portal-logo">
-                    <span className="logo-icon">🎮</span>
-                    <span className="logo-text">GamePass Store</span>
+                    <div className="logo-brand">ASSINALIVEBR</div>
+                    <div className="logo-gamepass">GAMEPASS</div>
                 </div>
                 {client && (
                     <div className="portal-user">
