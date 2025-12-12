@@ -3,6 +3,7 @@ import Login from './Login';
 import Register from './Register';
 import MyAccount from './MyAccount';
 import { portalAPI } from './api';
+import { StarfieldBackground } from './StarfieldBackground';
 
 type View = 'login' | 'register' | 'account';
 
@@ -71,6 +72,7 @@ export default function PortalApp() {
 
     return (
         <div className="portal-container">
+            <StarfieldBackground />
             <div className="portal-header">
                 <div className="portal-logo">
                     <span className="logo-icon">🎮</span>
