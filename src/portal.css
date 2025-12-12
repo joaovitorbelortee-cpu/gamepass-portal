@@ -1,0 +1,688 @@
+/* Portal do Cliente - Estilos */
+
+:root {
+  --portal-bg: #0a0a0f;
+  --portal-card: #12121a;
+  --portal-border: #2a2a3a;
+  --portal-text: #ffffff;
+  --portal-text-secondary: #a0a0b0;
+  --portal-text-muted: #6a6a7a;
+  --portal-primary: #10b981;
+  --portal-primary-dark: #059669;
+  --portal-warning: #f59e0b;
+  --portal-danger: #ef4444;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--portal-bg);
+  color: var(--portal-text);
+  min-height: 100vh;
+}
+
+.portal-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.portal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--portal-border);
+  background: rgba(18, 18, 26, 0.8);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.portal-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  font-size: 28px;
+}
+
+.logo-text {
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--portal-primary), #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.portal-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.user-name {
+  color: var(--portal-text-secondary);
+  font-size: 14px;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid var(--portal-border);
+  color: var(--portal-text-secondary);
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--portal-danger);
+  color: var(--portal-danger);
+}
+
+/* Content */
+.portal-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+/* Card */
+.portal-card {
+  background: var(--portal-card);
+  border: 1px solid var(--portal-border);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 32px 32px 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--portal-border);
+}
+
+.card-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.card-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.card-header p {
+  color: var(--portal-text-secondary);
+  font-size: 14px;
+}
+
+/* Form */
+.portal-form {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--portal-text-secondary);
+}
+
+.form-group input {
+  background: rgba(10, 10, 15, 0.5);
+  border: 1px solid var(--portal-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  color: var(--portal-text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--portal-primary);
+}
+
+.form-group input::placeholder {
+  color: var(--portal-text-muted);
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--portal-primary), var(--portal-primary-dark));
+  color: white;
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--portal-primary);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+/* Card Footer */
+.card-footer {
+  padding: 20px 32px;
+  text-align: center;
+  border-top: 1px solid var(--portal-border);
+  background: rgba(10, 10, 15, 0.3);
+}
+
+.card-footer p {
+  color: var(--portal-text-muted);
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+/* Error Message */
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--portal-danger);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Loading */
+.portal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px;
+  color: var(--portal-text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--portal-border);
+  border-top-color: var(--portal-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* My Account Page */
+.my-account {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.account-card {
+  max-width: none;
+}
+
+.account-header {
+  padding: 24px;
+  border-bottom: 1px solid var(--portal-border);
+}
+
+.account-status {
+  margin-bottom: 12px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-active {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--portal-primary);
+}
+
+.status-expiring {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--portal-warning);
+}
+
+.status-expired {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--portal-danger);
+}
+
+.account-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* Credentials */
+.account-credentials {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border-bottom: 1px solid var(--portal-border);
+}
+
+.credential-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.credential-item label {
+  font-size: 13px;
+  color: var(--portal-text-muted);
+}
+
+.credential-value {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 10, 15, 0.5);
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--portal-border);
+}
+
+.credential-value span {
+  flex: 1;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  word-break: break-all;
+}
+
+.copy-btn,
+.show-btn {
+  background: rgba(42, 42, 58, 0.5);
+  border: 1px solid var(--portal-border);
+  color: var(--portal-text-secondary);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.copy-btn:hover,
+.show-btn:hover {
+  background: rgba(42, 42, 58, 0.8);
+  color: var(--portal-text);
+}
+
+.copy-btn.copied {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--portal-primary);
+  color: var(--portal-primary);
+}
+
+/* Account Info */
+.account-info {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.info-item {
+  text-align: center;
+}
+
+.info-label {
+  display: block;
+  font-size: 12px;
+  color: var(--portal-text-muted);
+  margin-bottom: 6px;
+}
+
+.info-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--portal-text);
+}
+
+.info-value.warning {
+  color: var(--portal-warning);
+}
+
+/* Renew Banner */
+.renew-banner,
+.expired-banner {
+  margin: 0 24px 24px;
+  padding: 20px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.renew-banner {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.expired-banner {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.renew-content,
+.expired-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.renew-icon,
+.expired-icon {
+  font-size: 28px;
+}
+
+.renew-text strong,
+.expired-text strong {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.renew-text p,
+.expired-text p {
+  font-size: 13px;
+  color: var(--portal-text-secondary);
+}
+
+.renew-btn {
+  background: var(--portal-primary);
+  color: white;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.renew-btn:hover {
+  background: var(--portal-primary-dark);
+  transform: translateY(-1px);
+}
+
+.renew-section {
+  padding: 0 24px 24px;
+}
+
+.renew-btn.full-width {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Purchases List */
+.purchases-list {
+  padding: 0 24px 24px;
+}
+
+.purchase-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: rgba(10, 10, 15, 0.3);
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.purchase-item:last-child {
+  margin-bottom: 0;
+}
+
+.purchase-item.current {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.purchase-date {
+  font-size: 13px;
+  color: var(--portal-text-muted);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.purchase-account {
+  font-size: 14px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.purchase-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.purchase-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--portal-primary);
+}
+
+.current-badge {
+  background: var(--portal-primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Empty State */
+.empty-state {
+  padding: 60px 32px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.empty-hint {
+  color: var(--portal-text-muted);
+  font-size: 14px !important;
+}
+
+/* Help Section */
+.help-section {
+  text-align: center;
+  padding: 20px;
+}
+
+.help-section p {
+  color: var(--portal-text-muted);
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.help-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(37, 211, 102, 0.15);
+  border: 1px solid rgba(37, 211, 102, 0.3);
+  color: #25d366;
+  padding: 12px 24px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.help-btn:hover {
+  background: rgba(37, 211, 102, 0.25);
+}
+
+/* Footer */
+.portal-footer {
+  padding: 24px;
+  text-align: center;
+  border-top: 1px solid var(--portal-border);
+  background: rgba(10, 10, 15, 0.5);
+}
+
+.portal-footer p {
+  color: var(--portal-text-muted);
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.portal-footer p:last-child {
+  margin-bottom: 0;
+}
+
+.footer-link a {
+  color: var(--portal-primary);
+  text-decoration: none;
+}
+
+.footer-link a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .portal-header {
+    padding: 16px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+  }
+
+  .portal-content {
+    padding: 20px 16px;
+  }
+
+  .portal-card {
+    border-radius: 16px;
+  }
+
+  .card-header {
+    padding: 24px 20px 20px;
+  }
+
+  .card-header h1 {
+    font-size: 24px;
+  }
+
+  .portal-form {
+    padding: 24px 20px;
+  }
+
+  .account-info {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    text-align: left;
+    padding: 12px;
+    background: rgba(10, 10, 15, 0.3);
+    border-radius: 10px;
+  }
+
+  .info-label {
+    margin-bottom: 0;
+  }
+
+  .renew-banner,
+  .expired-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .renew-content,
+  .expired-content {
+    flex-direction: column;
+  }
+
+  .credential-value {
+    flex-wrap: wrap;
+  }
+
+  .credential-value span {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
