@@ -145,8 +145,8 @@ export const portalAPI = {
 // N8N INTEGRATION
 // ==========================================
 
-const N8N_NEW_SALE_URL = import.meta.env.VITE_N8N_NEW_SALE_URL || 'https://exclusiveboss.app.n8n.cloud/webhook/1b5a041f-0bd0-48c8-a942-fbce9aa593f9';
-const N8N_RENEWAL_URL = import.meta.env.VITE_N8N_RENEWAL_URL || 'https://exclusiveboss.app.n8n.cloud/webhook/dce8cdf9-027d-4559-8f80-276f57a8c559';
+const N8N_NEW_SALE_URL = import.meta.env.VITE_N8N_NEW_SALE_URL || 'https://exclusiveboss.app.n8n.cloud/webhook/new-sale';
+const N8N_RENEWAL_URL = import.meta.env.VITE_N8N_RENEWAL_URL || 'https://exclusiveboss.app.n8n.cloud/webhook/renewal-confirmed';
 const N8N_WEBHOOK_SECRET = import.meta.env.VITE_N8N_WEBHOOK_SECRET || 'vDgDXXS2Y8K3bQtVVNUfqJSkTtGJDWR1';
 
 async function postToN8n(url: string, payload: Record<string, unknown>): Promise<{ ok: boolean; data?: unknown; error?: string }> {
