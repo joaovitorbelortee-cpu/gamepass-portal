@@ -4,6 +4,9 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://tbnafolszkclonzxjivy.supabase.co';
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRibmFmb2xzemtjbG9uenhqaXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2NjM3MjUsImV4cCI6MjA0ODIzOTcyNX0.dF_6Xf8mSoEqEZd3GQl9T0cKQgzAR1Q8_D5c22QCjk8';
 
+console.log('🔗 Supabase URL:', SUPABASE_URL);
+console.log('🔑 Supabase Key configured:', SUPABASE_ANON_KEY ? 'Yes' : 'No');
+
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const portalAPI = {
@@ -38,33 +41,50 @@ export const portalAPI = {
     },
 
     async register(clientData: { email: string; password: string; name: string; whatsapp: string }) {
+        console.log('📝 Iniciando registro para:', clientData.email);
         try {
-            const { data: existing } = await supabase
+            // Check if email already exists
+            const { data: existing, error: searchError } = await supabase
                 .from('clients')
                 .select('id')
                 .eq('email', clientData.email)
-                .single();
+                .maybeSingle();
+
+            if (searchError) {
+                console.error('❌ Erro ao verificar email:', searchError);
+                throw new Error(`Erro ao verificar email: ${searchError.message}`);
+            }
 
             if (existing) {
                 throw new Error('Email já cadastrado');
             }
+
+            console.log('✅ Email disponível, inserindo cliente...');
 
             const { data, error } = await supabase
                 .from('clients')
                 .insert([{
                     name: clientData.name,
                     email: clientData.email,
-                    whatsapp: clientData.whatsapp,
+                    whatsapp: clientData.whatsapp || '',
                     password_hash: clientData.password,
                     tag: 'novo'
                 }])
                 .select()
                 .single();
 
-            if (error) throw error;
+            if (error) {
+                console.error('❌ Erro ao inserir cliente:', error);
+                throw new Error(`Erro ao cadastrar: ${error.message}`);
+            }
+
+            console.log('✅ Cliente cadastrado com sucesso:', data);
             return data;
-        } catch (error) {
-            console.error('Erro ao registrar:', error);
+        } catch (error: any) {
+            console.error('❌ Erro no registro:', error);
+            if (error.message?.includes('Failed to fetch')) {
+                throw new Error('Erro de conexão. Verifique sua internet e tente novamente.');
+            }
             throw error;
         }
     },
