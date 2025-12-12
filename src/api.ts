@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Supabase config - uses same backend as main app
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://tbnafolszkclonzxjivy.supabase.co';
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRibmFmb2xzemtjbG9uenhqaXZ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzI2NjM3MjUsImV4cCI6MjA0ODIzOTcyNX0.dF_6Xf8mSoEqEZd3GQl9T0cKQgzAR1Q8_D5c22QCjk8';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://cpzxslaufhomqxksyrwt.supabase.co';
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNwenhzbGF1ZmhvbXF4a3N5cnd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMzQwNTUsImV4cCI6MjA4MDkxMDA1NX0.TDFb2CTXl6rocaRUbCNplaQ1d_zRrMmqhfQ1ncAiYmk';
 
 console.log('🔗 Supabase URL:', SUPABASE_URL);
 console.log('🔑 Supabase Key configured:', SUPABASE_ANON_KEY ? 'Yes' : 'No');
