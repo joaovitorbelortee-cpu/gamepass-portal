@@ -140,3 +140,61 @@ export const portalAPI = {
         }
     }
 };
+
+// ==========================================
+// N8N INTEGRATION
+// ==========================================
+
+const N8N_NEW_SALE_URL = import.meta.env.VITE_N8N_NEW_SALE_URL || 'https://exclusiveboss.app.n8n.cloud/webhook/1b5a041f-0bd0-48c8-a942-fbce9aa593f9';
+const N8N_RENEWAL_URL = import.meta.env.VITE_N8N_RENEWAL_URL || 'https://exclusiveboss.app.n8n.cloud/webhook/dce8cdf9-027d-4559-8f80-276f57a8c559';
+const N8N_WEBHOOK_SECRET = import.meta.env.VITE_N8N_WEBHOOK_SECRET || 'vDgDXXS2Y8K3bQtVVNUfqJSkTtGJDWR1';
+
+async function postToN8n(url: string, payload: Record<string, unknown>): Promise<{ ok: boolean; data?: unknown; error?: string }> {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-webhook-secret': N8N_WEBHOOK_SECRET,
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status}`);
+            }
+
+            const data = await res.json();
+            return { ok: true, data };
+        } catch (err: unknown) {
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+            console.error(`Attempt ${attempt} failed:`, errorMessage);
+            if (attempt === 3) {
+                return { ok: false, error: errorMessage };
+            }
+        }
+    }
+    return { ok: false, error: 'All attempts failed' };
+}
+
+export async function sendNewSale(payload: {
+    client_name?: string;
+    client_email: string;
+    client_whatsapp?: string;
+    portal_link?: string;
+    expiry_date?: string;
+    payment_id: string;
+    account_email?: string;
+    account_password?: string;
+}) {
+    return postToN8n(N8N_NEW_SALE_URL, payload);
+}
+
+export async function sendRenewal(payload: {
+    client_email: string;
+    new_expiry_date: string;
+    payment_id: string;
+}) {
+    return postToN8n(N8N_RENEWAL_URL, payload);
+}
