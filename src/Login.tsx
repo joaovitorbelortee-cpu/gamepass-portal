@@ -7,7 +7,6 @@ interface LoginProps {
 
 export default function Login({ onLogin }: LoginProps) {
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -17,10 +16,10 @@ export default function Login({ onLogin }: LoginProps) {
         setLoading(true);
 
         try {
-            const data = await portalAPI.login(email, password);
+            const data = await portalAPI.login(email);
             onLogin(data.token, data.client);
         } catch (err: any) {
-            setError(err.message || 'Erro ao fazer login');
+            setError(err.message || 'Erro ao entrar. Verifique se o email é o mesmo da compra.');
         } finally {
             setLoading(false);
         }
@@ -30,7 +29,7 @@ export default function Login({ onLogin }: LoginProps) {
         <div className="portal-card">
             <div className="card-header">
                 <h1>Entrar</h1>
-                <p>Acesse sua conta GamePass</p>
+                <p>Use o email da sua compra</p>
             </div>
 
             <form onSubmit={handleSubmit} className="portal-form">
@@ -41,7 +40,7 @@ export default function Login({ onLogin }: LoginProps) {
                 )}
 
                 <div className="form-group">
-                    <label htmlFor="email">Email</label>
+                    <label htmlFor="email">Email da Compra</label>
                     <input
                         type="email"
                         id="email"
@@ -53,21 +52,8 @@ export default function Login({ onLogin }: LoginProps) {
                     />
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="password">Senha</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Sua senha"
-                        required
-                        autoComplete="current-password"
-                    />
-                </div>
-
                 <button type="submit" className="btn-primary" disabled={loading}>
-                    {loading ? 'Entrando...' : 'Entrar'}
+                    {loading ? 'Verificando...' : 'Acessar'}
                 </button>
             </form>
         </div>

@@ -11,7 +11,7 @@ console.log('🔑 Supabase Key configured:', SUPABASE_ANON_KEY ? 'Yes' : 'No');
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 export const portalAPI = {
-    async login(email: string, password: string) {
+    async login(email: string) {
         try {
             const { data: client, error } = await supabase
                 .from('clients')
@@ -20,12 +20,13 @@ export const portalAPI = {
                 .single();
 
             if (error || !client) {
-                throw new Error('Email não encontrado. Verifique se você já realizou uma compra.');
+                console.log('Cliente não encontrado, tentando criar temporário se houver venda...');
+                // Em um cenário ideal, o n8n já criou. Se não, não permitimos login.
+                throw new Error('Email não encontrado. Verifique se você digitou corretamente ou se já realizou uma compra.');
             }
 
-            if (client.password_hash !== password && client.password !== password) {
-                throw new Error('Senha incorreta');
-            }
+            // Removida verificação de senha
+            // if (client.password_hash !== password && client.password !== password) { ... }
 
             // Check if client has a purchase
             const { data: sales, error: salesError } = await supabase
@@ -40,7 +41,7 @@ export const portalAPI = {
             }
 
             if (!sales || sales.length === 0) {
-                throw new Error('Nenhuma compra encontrada para este email. Realize uma compra primeiro.');
+                throw new Error('Nenhuma compra ativa encontrada para este email.');
             }
 
             return {
