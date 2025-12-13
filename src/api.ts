@@ -20,11 +20,27 @@ export const portalAPI = {
                 .single();
 
             if (error || !client) {
-                throw new Error('Cliente não encontrado');
+                throw new Error('Email não encontrado. Verifique se você já realizou uma compra.');
             }
 
             if (client.password_hash !== password && client.password !== password) {
                 throw new Error('Senha incorreta');
+            }
+
+            // Check if client has a purchase
+            const { data: sales, error: salesError } = await supabase
+                .from('sales')
+                .select('id')
+                .eq('client_id', client.id)
+                .limit(1);
+
+            if (salesError) {
+                console.error('Erro ao verificar compras:', salesError);
+                throw new Error('Erro ao verificar sua conta. Tente novamente.');
+            }
+
+            if (!sales || sales.length === 0) {
+                throw new Error('Nenhuma compra encontrada para este email. Realize uma compra primeiro.');
             }
 
             return {
@@ -108,55 +124,96 @@ export const portalAPI = {
 
     async getMyAccount(clientId: string | number) {
         try {
-            const { data, error } = await supabase
-                .from('accounts')
+            console.log('🔍 Buscando conta para cliente:', clientId);
+
+            // 1. Get Sales first
+            const { data: sales, error: salesError } = await supabase
+                .from('sales')
                 .select('*')
                 .eq('client_id', String(clientId))
-                .neq('status', 'expired')
-                .order('purchase_date', { ascending: false })
-                .limit(1)
-                .single();
+                .order('created_at', { ascending: false })
+                .limit(1);
 
-            if (error && error.code === 'PGRST116') {
-                const { data: lastAccount, error: lastError } = await supabase
-                    .from('accounts')
-                    .select('*')
-                    .eq('client_id', String(clientId))
-                    .order('purchase_date', { ascending: false })
-                    .limit(1)
-                    .single();
-
-                if (lastError) return null;
-                return lastAccount;
+            if (salesError) {
+                console.error('❌ Erro ao buscar sales:', salesError);
+                throw salesError;
             }
 
-            if (error) throw error;
-            return data;
+            if (!sales || sales.length === 0) {
+                console.log('⚠️ Nenhuma venda encontrada para este cliente.');
+                return null;
+            }
+
+            const sale = sales[0];
+            console.log('✅ Venda encontrada:', sale);
+
+            if (!sale.account_id) {
+                console.log('⚠️ Venda sem account_id vinculado.');
+                return null;
+            }
+
+            // 2. Get Account
+            const { data: account, error: accountError } = await supabase
+                .from('accounts')
+                .select('*')
+                .eq('id', sale.account_id)
+                .single();
+
+            if (accountError) {
+                console.error('❌ Erro ao buscar conta vinculada:', accountError);
+                // If account deleted/missing, standard error or null?
+                // Throwing allows UI to see "Error loading" which might be better than silent fail
+                throw accountError;
+            }
+
+            console.log('✅ Conta encontrada:', account);
+            return account;
+
         } catch (error) {
-            console.error('Erro ao buscar conta:', error);
+            console.error('❌ Erro fatal em getMyAccount:', error);
             throw error;
         }
     },
 
     async getPurchases(clientId: string | number) {
         try {
-            const { data, error } = await supabase
-                .from('accounts')
-                .select('id, email, password, expiry_date, status, purchase_date, sale_price')
+            // 1. Get all sales
+            const { data: sales, error: salesError } = await supabase
+                .from('sales')
+                .select('*')
                 .eq('client_id', String(clientId))
-                .order('purchase_date', { ascending: false });
+                .order('created_at', { ascending: false });
 
-            if (error) throw error;
-            return data?.map(acc => ({
-                id: acc.id,
-                purchase_date: acc.purchase_date,
-                sale_price: acc.sale_price,
-                account_email: acc.email,
-                expiry_date: acc.expiry_date,
-                status: acc.status
-            })) || [];
+            if (salesError) throw salesError;
+            if (!sales || sales.length === 0) return [];
+
+            // 2. Get all accounts for these sales
+            const accountIds = sales.map(s => s.account_id).filter(Boolean);
+
+            if (accountIds.length === 0) return [];
+
+            const { data: accounts, error: accountsError } = await supabase
+                .from('accounts')
+                .select('*')
+                .in('id', accountIds);
+
+            if (accountsError) throw accountsError;
+
+            // 3. Merge manually
+            return sales.map(sale => {
+                const account = accounts?.find(a => a.id === sale.account_id);
+                return {
+                    id: account?.id,
+                    email: account?.email, // account email (product)
+                    password: account?.password,
+                    expiry_date: account?.expiry_date,
+                    status: account?.status,
+                    purchase_date: sale.created_at,
+                    price: sale.sale_price || sale.amount // fallback if column name differs
+                };
+            });
         } catch (error) {
-            console.error('Erro ao buscar compras:', error);
+            console.error('❌ Erro fatal em getPurchases:', error);
             throw error;
         }
     }

@@ -90,7 +90,6 @@ export default function PortalApp() {
                 {view === 'login' && (
                     <Login
                         onLogin={handleLogin}
-                        onRegister={() => setView('register')}
                     />
                 )}
                 {view === 'register' && (
