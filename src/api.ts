@@ -224,8 +224,8 @@ export const portalAPI = {
 // N8N INTEGRATION
 // ==========================================
 
-const N8N_NEW_SALE_URL = import.meta.env.VITE_N8N_NEW_SALE_URL || 'https://makemoneyer.app.n8n.cloud/webhook/new-sale';
-const N8N_RENEWAL_URL = import.meta.env.VITE_N8N_RENEWAL_URL || 'https://makemoneyer.app.n8n.cloud/webhook/new-sale';
+const N8N_NEW_SALE_URL = import.meta.env.VITE_N8N_NEW_SALE_URL || '';
+const N8N_RENEWAL_URL = import.meta.env.VITE_N8N_RENEWAL_URL || '';
 const N8N_WEBHOOK_SECRET = import.meta.env.VITE_N8N_WEBHOOK_SECRET || 'vDgDXXS2Y8K3bQtVVNUfqJSkTtGJDWR1';
 
 async function postToN8n(url: string, payload: Record<string, unknown>): Promise<{ ok: boolean; data?: unknown; error?: string }> {
