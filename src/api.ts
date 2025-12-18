@@ -28,11 +28,12 @@ export const portalAPI = {
             // Se cliente já existe, fazer login normal
             if (existingClient) {
                 console.log('✅ Cliente existente, permitindo login:', existingClient.email);
+                // Token baseado em EMAIL para evitar problemas com UUID
                 return {
-                    token: `mock-token-${existingClient.id}`,
+                    token: `email-token-${btoa(existingClient.email)}`,
                     client: {
                         id: existingClient.id,
-                        name: existingClient.name,
+                        name: existingClient.name || 'Cliente',
                         email: existingClient.email
                     }
                 };
@@ -75,10 +76,10 @@ export const portalAPI = {
             }
 
             return {
-                token: `mock-token-${newClient.id}`,
+                token: `email-token-${btoa(newClient.email)}`,
                 client: {
                     id: newClient.id,
-                    name: newClient.name,
+                    name: newClient.name || 'Cliente',
                     email: newClient.email
                 },
                 accountAssigned: {
@@ -143,42 +144,73 @@ export const portalAPI = {
     },
 
     async verify(token: string) {
-        if (!token.startsWith('mock-token-')) {
+        // Suporta token antigo (mock-token-ID) e novo (email-token-BASE64)
+        let email = '';
+
+        if (token.startsWith('email-token-')) {
+            // Novo formato: email-token-BASE64EMAIL
+            try {
+                email = atob(token.replace('email-token-', ''));
+            } catch {
+                throw new Error('Token inválido');
+            }
+        } else if (token.startsWith('mock-token-')) {
+            // Formato antigo: mock-token-UUID (buscar por ID)
+            const id = token.replace('mock-token-', '');
+            if (!id) throw new Error('Token inválido');
+
+            const { data, error } = await supabase
+                .from('clients')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (error || !data) throw new Error('Cliente não encontrado');
+            return data;
+        } else {
             throw new Error('Token inválido');
         }
-        const id = token.replace('mock-token-', '');
 
+        // Buscar cliente por email
         const { data, error } = await supabase
             .from('clients')
             .select('*')
-            .eq('id', id)
+            .eq('email', email)
             .single();
 
-        if (error) throw error;
+        if (error || !data) throw new Error('Cliente não encontrado');
         return data;
     },
 
-    async getMyAccount(clientId: string | number) {
+    async getMyAccount(clientIdOrEmail: string | number) {
         try {
-            // Primeiro, buscar o email do cliente
-            const { data: client, error: clientError } = await supabase
-                .from('clients')
-                .select('email')
-                .eq('id', clientId)
-                .single();
+            let email = '';
 
-            if (clientError || !client?.email) {
-                console.error('❌ Erro ao buscar cliente:', clientError);
-                return null;
+            // Se for email (contém @), usar direto
+            if (typeof clientIdOrEmail === 'string' && clientIdOrEmail.includes('@')) {
+                email = clientIdOrEmail;
+            } else {
+                // Se for ID, buscar o email do cliente
+                const { data: client, error: clientError } = await supabase
+                    .from('clients')
+                    .select('email')
+                    .eq('id', clientIdOrEmail)
+                    .single();
+
+                if (clientError || !client?.email) {
+                    console.error('❌ Erro ao buscar cliente:', clientError);
+                    return null;
+                }
+                email = client.email;
             }
 
-            console.log('🔍 Buscando conta para email:', client.email);
+            console.log('🔍 Buscando conta para email:', email);
 
             // Buscar conta diretamente pelo sold_to_email (email do comprador)
             const { data: account, error: accountError } = await supabase
                 .from('accounts')
                 .select('*')
-                .eq('sold_to_email', client.email)
+                .eq('sold_to_email', email)
                 .order('created_at', { ascending: false })
                 .limit(1)
                 .maybeSingle();
@@ -202,24 +234,33 @@ export const portalAPI = {
         }
     },
 
-    async getPurchases(clientId: string | number) {
+    async getPurchases(clientIdOrEmail: string | number) {
         try {
-            // Buscar o email do cliente
-            const { data: client, error: clientError } = await supabase
-                .from('clients')
-                .select('email')
-                .eq('id', clientId)
-                .single();
+            let email = '';
 
-            if (clientError || !client?.email) {
-                return [];
+            if (typeof clientIdOrEmail === 'string' && clientIdOrEmail.includes('@')) {
+                email = clientIdOrEmail;
+            } else {
+                // Buscar o email do cliente pelo ID
+                const { data: client, error: clientError } = await supabase
+                    .from('clients')
+                    .select('email')
+                    .eq('id', clientIdOrEmail)
+                    .single();
+
+                if (clientError || !client?.email) {
+                    return [];
+                }
+                email = client.email;
             }
+
+            // Buscar todas as contas vinculadas a este email
 
             // Buscar todas as contas vinculadas a este email
             const { data: accounts, error: accountsError } = await supabase
                 .from('accounts')
                 .select('*')
-                .eq('sold_to_email', client.email)
+                .eq('sold_to_email', email)
                 .order('created_at', { ascending: false });
 
             if (accountsError) throw accountsError;

@@ -4,7 +4,7 @@ import { portalAPI } from './api';
 interface MyAccountProps {
     token: string;
     client: {
-        id: number;
+        id: string | number;
         name: string;
         email: string;
     };
@@ -45,8 +45,8 @@ export default function MyAccount({ token, client }: MyAccountProps) {
     const loadData = async () => {
         try {
             const [accountData, purchasesData] = await Promise.all([
-                portalAPI.getMyAccount(client.id),
-                portalAPI.getPurchases(client.id)
+                portalAPI.getMyAccount(client.email),
+                portalAPI.getPurchases(client.email)
             ]);
 
             if (accountData) {

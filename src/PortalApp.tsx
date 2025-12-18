@@ -8,7 +8,7 @@ import { StarfieldBackground } from './StarfieldBackground';
 type View = 'login' | 'register' | 'account';
 
 interface Client {
-    id: number;
+    id: string | number;
     name: string;
     email: string;
 }
