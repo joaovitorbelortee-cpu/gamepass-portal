@@ -114,10 +114,15 @@ export default function MyAccount({ token, client }: MyAccountProps) {
                 <div className="card-header">
                     <h1>Minha Conta</h1>
                 </div>
-                <div className="empty-state">
-                    <span className="empty-icon">📦</span>
-                    <p>Nenhuma conta ativa encontrada</p>
-                    <p className="empty-hint">Após realizar uma compra, sua conta aparecerá aqui.</p>
+                <div className="empty-state waiting-queue">
+                    <div className="waiting-spinner"></div>
+                    <span className="waiting-icon">🎮</span>
+                    <p className="waiting-title">Estamos separando sua conta...</p>
+                    <p className="waiting-hint">
+                        Sua conta GamePass está sendo preparada!<br />
+                        Assim que estiver disponível, aparecerá aqui automaticamente.
+                    </p>
+                    <p className="waiting-tip">💡 Dica: Atualize a página em alguns minutos</p>
                 </div>
             </div>
         );

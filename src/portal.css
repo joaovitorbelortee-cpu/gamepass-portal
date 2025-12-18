@@ -606,6 +606,75 @@ body {
   font-size: 14px !important;
 }
 
+/* Waiting Queue State */
+.waiting-queue {
+  position: relative;
+  padding: 50px 32px 60px;
+}
+
+.waiting-spinner {
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 60px;
+  border: 3px solid rgba(16, 185, 129, 0.2);
+  border-top-color: var(--portal-primary);
+  border-radius: 50%;
+  animation: waiting-spin 1.5s linear infinite;
+}
+
+@keyframes waiting-spin {
+  to {
+    transform: translateX(-50%) rotate(360deg);
+  }
+}
+
+.waiting-icon {
+  font-size: 56px;
+  display: block;
+  margin: 40px 0 20px;
+  animation: waiting-pulse 2s ease-in-out infinite;
+}
+
+@keyframes waiting-pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.waiting-title {
+  font-size: 20px !important;
+  font-weight: 600;
+  color: var(--portal-primary) !important;
+  margin-bottom: 12px !important;
+}
+
+.waiting-hint {
+  color: var(--portal-text-secondary) !important;
+  font-size: 15px !important;
+  line-height: 1.6;
+  margin-bottom: 20px !important;
+}
+
+.waiting-tip {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--portal-primary) !important;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13px !important;
+  display: inline-block;
+  margin-top: 10px;
+}
+
 /* Help Section */
 .help-section {
   text-align: center;
