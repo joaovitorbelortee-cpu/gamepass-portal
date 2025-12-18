@@ -13,27 +13,78 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 export const portalAPI = {
     async login(email: string) {
         try {
-            const { data: client, error } = await supabase
+            // Primeiro, verificar se cliente já existe
+            const { data: existingClient, error: searchError } = await supabase
+                .from('clients')
+                .select('*')
+                .eq('email', email)
+                .maybeSingle();
+
+            if (searchError) {
+                console.error('❌ Erro ao buscar cliente:', searchError);
+                throw new Error('Erro ao verificar email. Tente novamente.');
+            }
+
+            // Se cliente já existe, fazer login normal
+            if (existingClient) {
+                console.log('✅ Cliente existente, permitindo login:', existingClient.email);
+                return {
+                    token: `mock-token-${existingClient.id}`,
+                    client: {
+                        id: existingClient.id,
+                        name: existingClient.name,
+                        email: existingClient.email
+                    }
+                };
+            }
+
+            // Cliente novo - atribuir conta automaticamente via RPC
+            console.log('🆕 Email novo detectado, atribuindo conta automaticamente:', email);
+
+            const { data: result, error: rpcError } = await supabase
+                .rpc('assign_account_to_buyer', {
+                    p_buyer_email: email,
+                    p_buyer_name: 'Cliente GamePass'
+                });
+
+            if (rpcError) {
+                console.error('❌ Erro ao atribuir conta:', rpcError);
+                throw new Error('Erro ao atribuir conta. Tente novamente.');
+            }
+
+            // Verificar resultado da atribuição
+            const assignResult = result?.[0];
+
+            if (!assignResult?.success) {
+                console.log('⚠️ Nenhuma conta disponível:', assignResult?.error_message);
+                throw new Error(assignResult?.error_message || 'Nenhuma conta GamePass disponível no momento. Por favor, aguarde novas contas serem adicionadas.');
+            }
+
+            console.log('✅ Conta atribuída com sucesso:', assignResult.account_email);
+
+            // Buscar o cliente recém-criado
+            const { data: newClient, error: clientError } = await supabase
                 .from('clients')
                 .select('*')
                 .eq('email', email)
                 .single();
 
-            if (error || !client) {
-                console.log('Cliente não encontrado...');
-                throw new Error('Email não encontrado. Verifique se você digitou corretamente.');
+            if (clientError || !newClient) {
+                console.error('❌ Erro ao buscar novo cliente:', clientError);
+                throw new Error('Conta atribuída mas erro ao carregar dados. Faça login novamente.');
             }
 
-            // Cliente encontrado - permitir login 
-            // (verificação de venda removida pois tabela sales pode estar vazia)
-            console.log('✅ Cliente encontrado, permitindo login:', client.email);
-
             return {
-                token: `mock-token-${client.id}`,
+                token: `mock-token-${newClient.id}`,
                 client: {
-                    id: client.id,
-                    name: client.name,
-                    email: client.email
+                    id: newClient.id,
+                    name: newClient.name,
+                    email: newClient.email
+                },
+                accountAssigned: {
+                    email: assignResult.account_email,
+                    password: assignResult.account_password,
+                    expiry_date: assignResult.expiry_date
                 }
             };
         } catch (error) {
