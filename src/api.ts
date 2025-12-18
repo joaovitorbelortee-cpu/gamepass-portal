@@ -20,29 +20,13 @@ export const portalAPI = {
                 .single();
 
             if (error || !client) {
-                console.log('Cliente não encontrado, tentando criar temporário se houver venda...');
-                // Em um cenário ideal, o n8n já criou. Se não, não permitimos login.
-                throw new Error('Email não encontrado. Verifique se você digitou corretamente ou se já realizou uma compra.');
+                console.log('Cliente não encontrado...');
+                throw new Error('Email não encontrado. Verifique se você digitou corretamente.');
             }
 
-            // Removida verificação de senha
-            // if (client.password_hash !== password && client.password !== password) { ... }
-
-            // Check if client has a purchase
-            const { data: sales, error: salesError } = await supabase
-                .from('sales')
-                .select('id')
-                .eq('client_id', client.id)
-                .limit(1);
-
-            if (salesError) {
-                console.error('Erro ao verificar compras:', salesError);
-                throw new Error('Erro ao verificar sua conta. Tente novamente.');
-            }
-
-            if (!sales || sales.length === 0) {
-                throw new Error('Nenhuma compra ativa encontrada para este email.');
-            }
+            // Cliente encontrado - permitir login 
+            // (verificação de venda removida pois tabela sales pode estar vazia)
+            console.log('✅ Cliente encontrado, permitindo login:', client.email);
 
             return {
                 token: `mock-token-${client.id}`,
@@ -125,46 +109,37 @@ export const portalAPI = {
 
     async getMyAccount(clientId: string | number) {
         try {
-            console.log('🔍 Buscando conta para cliente:', clientId);
+            // Primeiro, buscar o email do cliente
+            const { data: client, error: clientError } = await supabase
+                .from('clients')
+                .select('email')
+                .eq('id', clientId)
+                .single();
 
-            // 1. Get Sales first
-            const { data: sales, error: salesError } = await supabase
-                .from('sales')
-                .select('*')
-                .eq('client_id', String(clientId))
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (salesError) {
-                console.error('❌ Erro ao buscar sales:', salesError);
-                throw salesError;
-            }
-
-            if (!sales || sales.length === 0) {
-                console.log('⚠️ Nenhuma venda encontrada para este cliente.');
+            if (clientError || !client?.email) {
+                console.error('❌ Erro ao buscar cliente:', clientError);
                 return null;
             }
 
-            const sale = sales[0];
-            console.log('✅ Venda encontrada:', sale);
+            console.log('🔍 Buscando conta para email:', client.email);
 
-            if (!sale.account_id) {
-                console.log('⚠️ Venda sem account_id vinculado.');
-                return null;
-            }
-
-            // 2. Get Account
+            // Buscar conta diretamente pelo sold_to_email (email do comprador)
             const { data: account, error: accountError } = await supabase
                 .from('accounts')
                 .select('*')
-                .eq('id', sale.account_id)
-                .single();
+                .eq('sold_to_email', client.email)
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
 
             if (accountError) {
-                console.error('❌ Erro ao buscar conta vinculada:', accountError);
-                // If account deleted/missing, standard error or null?
-                // Throwing allows UI to see "Error loading" which might be better than silent fail
+                console.error('❌ Erro ao buscar conta:', accountError);
                 throw accountError;
+            }
+
+            if (!account) {
+                console.log('⚠️ Nenhuma conta encontrada para este email.');
+                return null;
             }
 
             console.log('✅ Conta encontrada:', account);
@@ -178,41 +153,37 @@ export const portalAPI = {
 
     async getPurchases(clientId: string | number) {
         try {
-            // 1. Get all sales
-            const { data: sales, error: salesError } = await supabase
-                .from('sales')
-                .select('*')
-                .eq('client_id', String(clientId))
-                .order('created_at', { ascending: false });
+            // Buscar o email do cliente
+            const { data: client, error: clientError } = await supabase
+                .from('clients')
+                .select('email')
+                .eq('id', clientId)
+                .single();
 
-            if (salesError) throw salesError;
-            if (!sales || sales.length === 0) return [];
+            if (clientError || !client?.email) {
+                return [];
+            }
 
-            // 2. Get all accounts for these sales
-            const accountIds = sales.map(s => s.account_id).filter(Boolean);
-
-            if (accountIds.length === 0) return [];
-
+            // Buscar todas as contas vinculadas a este email
             const { data: accounts, error: accountsError } = await supabase
                 .from('accounts')
                 .select('*')
-                .in('id', accountIds);
+                .eq('sold_to_email', client.email)
+                .order('created_at', { ascending: false });
 
             if (accountsError) throw accountsError;
+            if (!accounts || accounts.length === 0) return [];
 
-            // 3. Merge manually
-            return sales.map(sale => {
-                const account = accounts?.find(a => a.id === sale.account_id);
-                return {
-                    id: account?.id,
-                    email: account?.email, // account email (product)
-                    password: account?.password,
-                    expiry_date: account?.expiry_date,
-                    status: account?.status,
-                    purchase_date: sale.created_at,
-                    price: sale.sale_price || sale.amount // fallback if column name differs
-                };
-            });
+            // Formatar como compras
+            return accounts.map(account => ({
+                id: account.id,
+                email: account.email,
+                password: account.password,
+                expiry_date: account.expiry_date,
+                status: account.status,
+                purchase_date: account.created_at,
+                price: account.cost || 69
+            }));
         } catch (error) {
             console.error('❌ Erro fatal em getPurchases:', error);
             throw error;
